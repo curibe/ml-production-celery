@@ -26,9 +26,10 @@ class StableDiffusionAbstract(ABC):
         self._module_import = importlib.import_module("diffusers")
         self._pipeline = getattr(self._module_import, pipeline_name)
 
-        self.pipe = self._pipeline(
+        self.pipe = self._pipeline.from_pretrained(
             self.model_name,
-            torch_dtype=self.dtype, )
+            torch_dtype=self.dtype,
+        )
         self.model = self.pipe.to(self.device)
 
         # Set param optimization

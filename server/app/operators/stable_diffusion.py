@@ -12,7 +12,6 @@ settings = get_settings()
 class StableDiffusionAbstract(ABC):
     def __init__(self, pipeline_name: str, scheduler: str, model_name: str = settings.default_model):
         self.model_name = model_name
-        self.token = settings.hf_auth_token
         self.scheduler = scheduler
 
         self.dtype = torch.float16
@@ -47,7 +46,7 @@ class StableDiffusionAbstract(ABC):
 class StableDiffusionText2Image(StableDiffusionAbstract):
     def __init__(
             self,
-            model_name: str,
+            model_name: str = settings.default_model,
             scheduler: str = "PNDMScheduler",
             pipeline_name: str = "StableDiffusionXLPipeline",
     ):

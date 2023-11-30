@@ -8,7 +8,7 @@ from fastapi.responses import StreamingResponse
 from app.config import get_settings
 from app.config.logger import InitLogger
 from app.integrations.genai_generator import GenerativeAIGenerator
-from app.models.schemas import Request
+from app.models.schemas import GenRequest
 from app.services.generation_service import GenerationService
 from app.utils.images import from_image_to_bytes
 
@@ -37,6 +37,6 @@ async def root():
 
 @app.post('/generate')
 async def generate():
-    images = generator_service.generate_images_with_text2img(request=Request())
+    images = generator_service.generate_images_with_text2img(request=GenRequest())
     img_bytes = from_image_to_bytes(images[0])
     return StreamingResponse(BytesIO(img_bytes), media_type="image/png")

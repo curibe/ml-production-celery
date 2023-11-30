@@ -4,7 +4,7 @@ from loguru import logger
 import torch
 
 from app.config import get_settings
-from app.models.schemas import Request
+from app.models.schemas import GenRequest
 
 settings = get_settings()
 
@@ -55,7 +55,7 @@ class StableDiffusionText2Image(StableDiffusionAbstract):
 
     def generate_images(self, **kwargs):
         logger.info("generating image in Text2Image pipeline")
-        request: Request = kwargs.get("request")
+        request: GenRequest = kwargs.get("request")
         generator = torch.Generator(self.generator_device).manual_seed(request.generator)
 
         images = self.model(

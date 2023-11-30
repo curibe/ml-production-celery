@@ -1,0 +1,15 @@
+version: "3.8"
+services:
+  server:
+    build:
+      context: server
+      dockerfile: ./Dockerfile
+    image: server:latest
+    command: python3 main.py
+    volumes:
+      - ./server:/opt/api
+    ports:
+      - "8000:8000"
+    stdin_open: true
+    tty: true
+

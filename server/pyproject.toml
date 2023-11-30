@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "ml-production-celery"
+version = "0.1.0"
+description = ""
+authors = ["César Alfredo Uribe León <cesar@monadical.com>"]
+readme = "README.md"
+packages = [{include = "ml_production_celery"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = {extras = ["all"], version = "^0.104.1"}
+celery = "^5.3.6"
+loguru = "^0.7.2"
+pydantic-settings = "^2.1.0"
+pillow = "^10.1.0"
+torch = "^2.1.1"
+diffusers = "^0.24.0"
+uvicorn = "^0.24.0.post1"
+
+
+[tool.poetry.group.dev.dependencies]
+ipdb = "^0.13.13"
+ruff = "^0.1.6"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

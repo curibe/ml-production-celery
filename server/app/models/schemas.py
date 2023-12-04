@@ -18,5 +18,5 @@ class GenRequest(BaseModel):
     modelid: str = settings.default_model
 
 
-class Response(BaseModel):
+class GenResponse(BaseModel):
     image: str

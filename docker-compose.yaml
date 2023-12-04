@@ -19,4 +19,17 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [ gpu ]
+  client:
+    build:
+      context: client
+      dockerfile: ./Dockerfile
+    image: streamlit-client:latest
+    volumes:
+      - ./client:/opt/app
+    ports:
+      - "8501:8501"
+    stdin_open: true
+    tty: true
+#    depends_on:
+#      - server
 

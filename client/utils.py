@@ -3,7 +3,7 @@ import httpx
 
 async def generate_images(api_endpoint, params):
     async with httpx.AsyncClient() as client:
-        response = await client.post(api_endpoint, json=params)
+        response = await client.post(api_endpoint, json=params, timeout=120)
     return response
 
 

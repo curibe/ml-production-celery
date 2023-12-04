@@ -100,11 +100,14 @@ st.sidebar.markdown("<br><br>", unsafe_allow_html=True)
 # MAIN VIEW
 # -------------------------------------------------------------------------------------------------------
 
+# Image placeholder
+placeholder = st.image("https://www.pulsecarshalton.co.uk/wp-content/uploads/2016/08/jk-placeholder-image.jpg")
+
 # Button to trigger image generation
 if st.sidebar.button("Generate Images", type="primary"):
 
     # API endpoint to generate images
-    api_endpoint = "https://server/generate"
+    api_endpoint = "https://server:8000/generate"
 
     # Parameters to be sent to the API
     params = GenRequest(
@@ -121,18 +124,18 @@ if st.sidebar.button("Generate Images", type="primary"):
         modelid=model
     )
 
-    # Call the asynchronous function and wait for it to complete
-    response = asyncio.run(generate_images(api_endpoint, params.dict()))
+    # Clear placeholder
+    placeholder.empty()
+
+    with st.spinner("Generating image..."):
+        # Call the asynchronous function and wait for it to complete
+        response = asyncio.run(generate_images(api_endpoint, params.dict()))
 
     # Check if the request was successful
     if response.status_code == 200:
         # Display the generated images
-        images = response.json()["images"]
-        for img in images:
-            st.image(img, caption="Generated Image", use_column_width=True)
+        image = response.content
+        st.image(image, caption="Generated Image", use_column_width=True)
     else:
         st.error(f"Error: {response.status_code}. Failed to generate images.")
 
-# You can add additional sections or features as needed in the central part of the dashboard.
-# For example, you might want to include a section to display the diffusion model parameters,
-# or any other relevant information.

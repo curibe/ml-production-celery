@@ -2,12 +2,12 @@ from pydantic import BaseModel
 
 model_map = {
     "Stable Diffusion XL": "stabilityai/stable-diffusion-xl-base-1.0",
-    "Stable Diffusion": "stabilityai/stable-diffusion-base-1.0"
+    "Stable Diffusion 2": "stabilityai/stable-diffusion-2"
 }
 
 pipeline_map = {
     "stabilityai/stable-diffusion-xl-base-1.0": "StableDiffusionXLPipeline",
-    "stabilityai/stable-diffusion-base-1.0": "StableDiffusionPipeline"
+    "stabilityai/stable-diffusion-2": "StableDiffusionPipeline"
 }
 
 scheduler_map = {

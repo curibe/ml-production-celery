@@ -1,5 +1,7 @@
 import httpx
 
+from config import size_dict
+
 
 async def generate_images(api_endpoint, params):
     async with httpx.AsyncClient() as client:
@@ -8,10 +10,6 @@ async def generate_images(api_endpoint, params):
 
 
 def get_dimensions(size):
-    size_dict = {
-        "512x512": (512, 512),
-        "768x768": (768, 768)
-    }
     if size in size_dict:
         return size_dict[size]
     else:

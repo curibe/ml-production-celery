@@ -6,7 +6,6 @@ import streamlit as st
 from config import GenRequest, default_values, model_map, pipeline_map, scheduler_map
 from utils import generate_images, get_dimensions
 
-
 # Check if the session state object exists
 if "generated_images" not in st.session_state:
     st.session_state.generated_images = []

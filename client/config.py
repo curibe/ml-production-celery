@@ -26,6 +26,11 @@ scheduler_map = {
     'PNDM': 'PNDMScheduler'
 }
 
+size_dict = {
+        "512x512": (512, 512),
+        "768x768": (768, 768)
+    }
+
 
 class GenRequest(BaseModel):
     prompt: str = ("logo of The Witcher Portrait for a spiritual Premium Instagram channel,artwork, fujicolor, "

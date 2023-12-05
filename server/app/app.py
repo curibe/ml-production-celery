@@ -14,12 +14,17 @@ from app.utils.images import from_image_to_bytes
 
 app = FastAPI()
 
+# Create service to generate an image with Diffusion models
+# We inject the image generator integration dependency in the service
 generator_service = GenerationService(generator=GenerativeAIGenerator())
 
+# Load config to Logging system
 config_path = Path("app/config").absolute() / "logging-conf.yaml"
 logger = InitLogger.create_logger(config_path)
 
+# Load settings
 settings = get_settings()
+
 ALLOWED_ORIGINS = settings.allowed_origins.split(",")
 app.add_middleware(
     CORSMiddleware,
@@ -37,6 +42,7 @@ async def root():
 
 @app.post('/generate')
 async def generate(request: GenRequest):
+    # Call the service to generate the images according to the request params
     images = generator_service.generate_images_with_text2img(request=request)
     img_bytes = from_image_to_bytes(images[0])
     return StreamingResponse(BytesIO(img_bytes), media_type="image/png")

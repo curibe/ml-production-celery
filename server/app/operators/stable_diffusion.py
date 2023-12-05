@@ -1,7 +1,7 @@
 import importlib
-from abc import ABC, abstractmethod
-from loguru import logger
+
 import torch
+from loguru import logger
 
 from app.config import get_settings
 from app.models.schemas import GenRequest
@@ -9,8 +9,13 @@ from app.models.schemas import GenRequest
 settings = get_settings()
 
 
-class StableDiffusionAbstract(ABC):
-    def __init__(self, pipeline_name: str, scheduler: str, model_name: str = settings.default_model):
+class StableDiffusionText2Image:
+    def __init__(
+            self,
+            model_name: str = settings.default_model,
+            scheduler: str = "PNDMScheduler",
+            pipeline_name: str = "StableDiffusionXLPipeline",
+    ):
         self.model_name = model_name
         self.scheduler = scheduler
 
@@ -38,20 +43,6 @@ class StableDiffusionAbstract(ABC):
         # import scheduler
         scheduler = getattr(self._module_import, self.scheduler)
         self.model.scheduler = scheduler.from_config(self.model.scheduler.config)
-
-    @abstractmethod
-    def generate_images(self, *args, **kwargs):
-        pass
-
-
-class StableDiffusionText2Image(StableDiffusionAbstract):
-    def __init__(
-            self,
-            model_name: str = settings.default_model,
-            scheduler: str = "PNDMScheduler",
-            pipeline_name: str = "StableDiffusionXLPipeline",
-    ):
-        super().__init__(pipeline_name=pipeline_name, model_name=model_name, scheduler=scheduler)
 
     def generate_images(self, **kwargs):
         logger.info("generating image in Text2Image pipeline")

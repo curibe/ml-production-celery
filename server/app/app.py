@@ -36,7 +36,7 @@ async def root():
 
 
 @app.post('/generate')
-async def generate():
-    images = generator_service.generate_images_with_text2img(request=GenRequest())
+async def generate(request: GenRequest):
+    images = generator_service.generate_images_with_text2img(request=request)
     img_bytes = from_image_to_bytes(images[0])
     return StreamingResponse(BytesIO(img_bytes), media_type="image/png")

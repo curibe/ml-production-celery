@@ -107,7 +107,7 @@ placeholder = st.image("https://www.pulsecarshalton.co.uk/wp-content/uploads/201
 if st.sidebar.button("Generate Images", type="primary"):
 
     # API endpoint to generate images
-    api_endpoint = "https://server:8000/generate"
+    api_endpoint = "http://server:8000/generate"
 
     # Parameters to be sent to the API
     params = GenRequest(

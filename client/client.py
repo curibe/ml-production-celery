@@ -145,6 +145,7 @@ if st.sidebar.button("Generate Images", type="primary"):
             # Display the generated image
             image = response.content
             st.image(image, caption="Generated Image", use_column_width=True)
+            store_image(image, prompt)
         else:
             st.error(f"Error: {response.status_code}. Failed to generate images.")
 

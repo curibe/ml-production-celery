@@ -6,18 +6,23 @@ import streamlit as st
 from config import GenRequest, default_values, model_map, pipeline_map, scheduler_map
 from utils import generate_images, get_dimensions
 
-# Custom CSS style to hide the default increment/decrement buttons
-custom_css = """
-    <style>
-        .streamlit-widget st-number-input .decrement,
-        .streamlit-widget st-number-input .increment {
-            display: none !important;
-        }
-    </style>
-"""
+
+# Check if the session state object exists
+if "generated_images" not in st.session_state:
+    st.session_state.generated_images = []
+
+
+# Function to store image in the session state
+def store_image(image, prompt):
+    st.session_state.generated_images.append({
+        "bytes": image,
+        "prompt": prompt
+    })
+    st.session_state.generated_images = st.session_state.generated_images[-5:]
+
 
 # Streamlit layout
-st.title("Diffusion Models Image Generator")
+st.title("Image Generator with Diffusion Models")
 
 # -------------------------------------------------------------------------------------------------------
 # SIDE BAR
@@ -45,11 +50,11 @@ pipeline = pipeline_map[model]
 st.sidebar.header("Parameters")
 
 # Prompt
-prompt = st.sidebar.text_input("Prompt", default_values.prompt)
+prompt = st.sidebar.text_area("Prompt", default_values.prompt)
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
 
 # Negative Prompt
-negative_prompt = st.sidebar.text_input("Negative Prompt", default_values.negative_prompt)
+negative_prompt = st.sidebar.text_area("Negative Prompt", default_values.negative_prompt)
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
 
 # Number of Images
@@ -76,9 +81,6 @@ st.sidebar.markdown("#### Seed Options")
 # Placeholder for dynamic UI update
 seed_placeholder = st.sidebar.empty()
 
-# Custom HTML to inject CSS
-st.markdown(custom_css, unsafe_allow_html=True)
-
 # Checkbox for Generate Random Seed
 generate_random_seed = st.sidebar.checkbox("Generate Random Seed")
 
@@ -101,7 +103,14 @@ st.sidebar.markdown("<br><br>", unsafe_allow_html=True)
 # -------------------------------------------------------------------------------------------------------
 
 # Image placeholder
-placeholder = st.image("https://www.pulsecarshalton.co.uk/wp-content/uploads/2016/08/jk-placeholder-image.jpg")
+# Check if there are existing generated images
+if st.session_state.generated_images:
+    # Show the last generated image
+    last_image = st.session_state.generated_images[-1]
+    placeholder = st.image(last_image["bytes"], caption=prompt, use_column_width=True)
+else:
+    # If no existing images, show the placeholder
+    placeholder = st.image("https://www.pulsecarshalton.co.uk/wp-content/uploads/2016/08/jk-placeholder-image.jpg")
 
 # Button to trigger image generation
 if st.sidebar.button("Generate Images", type="primary"):
@@ -127,15 +136,22 @@ if st.sidebar.button("Generate Images", type="primary"):
     # Clear placeholder
     placeholder.empty()
 
-    with st.spinner("Generating image..."):
-        # Call the asynchronous function and wait for it to complete
-        response = asyncio.run(generate_images(api_endpoint, params.dict()))
+    with st.container():
+        with st.spinner("Generating image..."):
+            # Call the asynchronous function and wait for it to complete
+            response = asyncio.run(generate_images(api_endpoint, params.model_dump()))
 
-    # Check if the request was successful
-    if response.status_code == 200:
-        # Display the generated images
-        image = response.content
-        st.image(image, caption="Generated Image", use_column_width=True)
-    else:
-        st.error(f"Error: {response.status_code}. Failed to generate images.")
+        if response.status_code == 200:
+            # Display the generated image
+            image = response.content
+            st.image(image, caption="Generated Image", use_column_width=True)
+        else:
+            st.error(f"Error: {response.status_code}. Failed to generate images.")
 
+with st.container():
+    st.markdown("----", unsafe_allow_html=True)
+    st.markdown("### Previous results")
+    for i, img in enumerate(st.session_state.generated_images[::-1][1:]):
+        # Display image & prompt
+        st.image(img["bytes"])
+        st.markdown(img["prompt"])

@@ -10,6 +10,12 @@ from utils import generate_images, get_dimensions
 if "generated_images" not in st.session_state:
     st.session_state.generated_images = []
 
+if "generation_in_progress" not in st.session_state:
+    st.session_state.generation_in_progress = False
+
+if "seed_value" not in st.session_state:
+    st.session_state.seed_value = default_values.generator
+
 
 # Function to store image in the session state
 def store_image(image, prompt):
@@ -18,6 +24,16 @@ def store_image(image, prompt):
         "prompt": prompt
     })
     st.session_state.generated_images = st.session_state.generated_images[-5:]
+
+
+# Function to change the generation button status: enabled/disabled
+def swap_generation_button_status():
+    st.session_state.generation_in_progress = not st.session_state.generation_in_progress
+
+
+# Function to generate a random seed
+def generate_seed():
+    st.session_state.seed_value = int(np.random.randint(1, 10 ** 10))
 
 
 # Streamlit layout
@@ -85,17 +101,23 @@ generate_random_seed = st.sidebar.checkbox("Generate Random Seed")
 
 if generate_random_seed:
     # Generate random seed and update the input field
-    seed_value = int(np.random.randint(1, 10 ** 10))
+    seed_value = st.session_state.seed_value
     seed_value_input = seed_placeholder.number_input("Seed", value=seed_value, step=1)
-    # Custom button with a reload icon
-    reload_button = st.sidebar.button("Reload Seed", key="reload_button")
+    # Button to reload seed
+    reload_button = st.sidebar.button("Reload Seed", key="reload_button", on_click=generate_seed)
 else:
     # User input for seed value
-    seed_value = seed_placeholder.number_input("Seed", min_value=1, max_value=10 ** 10, value=default_values.generator)
+    seed_value = seed_placeholder.number_input("Seed", min_value=1, max_value=10 ** 10,
+                                               value=st.session_state.seed_value)
     seed_value_input = None
 
 # Add a blank line in the sidebar
 st.sidebar.markdown("<br><br>", unsafe_allow_html=True)
+
+# Button to trigger image generation
+generation_button = st.sidebar.button("Generate Images", type="primary",
+                                      on_click=swap_generation_button_status,
+                                      disabled=st.session_state.generation_in_progress)
 
 # -------------------------------------------------------------------------------------------------------
 # MAIN VIEW
@@ -112,7 +134,10 @@ else:
     placeholder = st.image("https://www.pulsecarshalton.co.uk/wp-content/uploads/2016/08/jk-placeholder-image.jpg")
 
 # Button to trigger image generation
-if st.sidebar.button("Generate Images", type="primary"):
+if generation_button:
+
+    # Set generation in progress to True
+    st.session_state.generation_in_progress = True
 
     # API endpoint to generate images
     api_endpoint = "http://server:8000/generate"
@@ -145,8 +170,17 @@ if st.sidebar.button("Generate Images", type="primary"):
             image = response.content
             st.image(image, caption=prompt, use_column_width=True)
             store_image(image, prompt)
+            # Reset generation in progress
+            swap_generation_button_status()
+            # Generate a new seed if random seed is enabled
+            if generate_random_seed:
+                generate_seed()
         else:
             st.error(f"Error: {response.status_code}. Failed to generate images.")
+            # Reset generation in progress
+            swap_generation_button_status()
+
+    st.rerun()
 
 with st.container():
     st.markdown("----", unsafe_allow_html=True)

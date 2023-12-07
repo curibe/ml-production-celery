@@ -46,3 +46,10 @@ async def generate(request: GenRequest):
     images = generator_service.generate_images_with_text2img(request=request)
     img_bytes = from_image_to_bytes(images[0])
     return StreamingResponse(BytesIO(img_bytes), media_type="image/png")
+
+
+@app.post('/generate_async')
+async def generate_async(request: GenRequest):
+    # Call the service to generate the images according to the request params
+    taskid = generator_service.generate_images_with_text2img(request=request)
+    return {"taskid": taskid}

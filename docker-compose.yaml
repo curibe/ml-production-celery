@@ -30,6 +30,37 @@ services:
       - "8501:8501"
     stdin_open: true
     tty: true
-#    depends_on:
-#      - server
+
+
+  worker:
+    build:
+      context: server
+      dockerfile: ./Dockerfile
+    command: celery -A app.celery.celery_app worker --max-tasks-per-child=1 --loglevel=info -Q stable_diffusion
+    volumes:
+      - ./server:/opt/api
+    stdin_open: true
+    tty: true
+    depends_on:
+      server:
+        condition: service_started
+      redis:
+        condition: service_started
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
+
+
+  redis:
+    image: redis:6-alpine
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+
 

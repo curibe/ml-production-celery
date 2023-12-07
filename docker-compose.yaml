@@ -54,6 +54,20 @@ services:
               count: 1
               capabilities: [ gpu ]
 
+  flower:
+    build: ./server
+    command: celery flower --basic_auth=admin:password
+    volumes:
+      - ./server:/opt/api
+    ports:
+      - "5555:5555"
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+    depends_on:
+      server:
+        condition: service_started
+      redis:
+        condition: service_started
 
   redis:
     image: redis:6-alpine

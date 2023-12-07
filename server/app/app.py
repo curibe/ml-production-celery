@@ -1,9 +1,10 @@
 from io import BytesIO
 from pathlib import Path
 
+from celery.Result import AsyncResult
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, JSONResponse
 
 from app.config import get_settings
 from app.config.logger import InitLogger
@@ -54,3 +55,17 @@ async def generate_async(request: GenRequest):
     # Call the service to generate the images according to the request params
     taskid = generator_service_celery.generate_images_with_text2img(request=request)
     return {"taskid": taskid}
+
+
+@app.get(
+    "/results/{task_id}",
+)
+async def get_generation_result(task_id, ):
+    task = AsyncResult(task_id)
+
+    if not task.ready():
+        return JSONResponse(content={"task": str(task.status)}, status_code=202)
+
+    result = task.get()
+    img_bytes = from_image_to_bytes(result[0])
+    return StreamingResponse(BytesIO(img_bytes), media_type="image/png")

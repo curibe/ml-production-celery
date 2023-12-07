@@ -29,7 +29,9 @@ stable_diffusion_queue = Queue(
 )
 
 # set the task queues
-app.conf.task_queues = stable_diffusion_queue
+app.conf.task_queues = (
+    stable_diffusion_queue,
+)
 
 # set the task routes
 app.conf.task_routes = {

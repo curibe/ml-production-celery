@@ -7,7 +7,7 @@ from fastapi.responses import StreamingResponse
 
 from app.config import get_settings
 from app.config.logger import InitLogger
-from app.integrations.genai_generator import GenerativeAIGenerator
+from app.integrations.genai_generator import GenerativeAIGenerator, GenerativeAIGeneratorCelery
 from app.models.schemas import GenRequest
 from app.services.generation_service import GenerationService
 from app.utils.images import from_image_to_bytes
@@ -17,6 +17,7 @@ app = FastAPI()
 # Create service to generate an image with Diffusion models
 # We inject the image generator integration dependency in the service
 generator_service = GenerationService(generator=GenerativeAIGenerator())
+generator_service_celery = GenerationService(generator=GenerativeAIGeneratorCelery())
 
 # Load config to Logging system
 config_path = Path("app/config").absolute() / "logging-conf.yaml"
@@ -51,5 +52,5 @@ async def generate(request: GenRequest):
 @app.post('/generate_async')
 async def generate_async(request: GenRequest):
     # Call the service to generate the images according to the request params
-    taskid = generator_service.generate_images_with_text2img(request=request)
+    taskid = generator_service_celery.generate_images_with_text2img(request=request)
     return {"taskid": taskid}

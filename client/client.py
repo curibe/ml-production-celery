@@ -4,7 +4,7 @@ import numpy as np
 import streamlit as st
 
 from config import GenRequest, default_values, model_map, pipeline_map, scheduler_map
-from utils import generate_images, get_dimensions
+from utils import generate_images, get_dimensions, long_poll_task_result
 
 # Check if the session state object exists
 if "generated_images" not in st.session_state:
@@ -166,6 +166,16 @@ if generation_button:
             response = asyncio.run(generate_images(api_endpoint, params.model_dump()))
 
         if response.status_code == 200:
+
+            # get the task id
+            task_id = response.json()["taskid"]
+
+            # API endpoint to get the result
+            result_url = f"http://server:8000/results/{task_id}"
+
+            # Call the asynchronous function and wait for it to complete
+            response = asyncio.run(long_poll_task_result(task_id, result_url))
+
             # Display the generated image
             image = response.content
             st.image(image, caption=prompt, use_column_width=True)

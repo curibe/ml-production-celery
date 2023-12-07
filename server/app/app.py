@@ -1,10 +1,10 @@
 from io import BytesIO
 from pathlib import Path
 
-from celery.Result import AsyncResult
+from celery.result import AsyncResult
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse, JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 
 from app.config import get_settings
 from app.config.logger import InitLogger

@@ -140,7 +140,7 @@ if generation_button:
     st.session_state.generation_in_progress = True
 
     # API endpoint to generate images
-    api_endpoint = "http://server:8000/generate"
+    api_endpoint = "http://server:8000/generate_async"
 
     # Parameters to be sent to the API
     params = GenRequest(

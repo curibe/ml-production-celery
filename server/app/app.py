@@ -62,7 +62,7 @@ async def generate_async(request: GenRequest):
 @app.post('/generate_async_custom')
 async def generate_async_custom(request: GenRequest):
     # Call the service to generate the images according to the request params
-    taskid = generator_service_celery.generate_images_with_text2img(request=request)
+    taskid = generator_service_celery_custom.generate_images_with_text2img(request=request)
     return {"taskid": taskid}
 
 

@@ -17,28 +17,29 @@ class DiffusionTask(Task):
     def __init__(self, name: str = settings.default_model):
         super().__init__()
         self.model = None
-        self.name = name
-        logger.info(f"Loading model {self.name}")
+        self.model_name = name
+        self.module_import = importlib.import_module(self.path[0])
+        self.model_obj = getattr(self.module_import, self.path[1])
+        logger.info(f"Init task with model {self.model_name}")
 
     def __call__(self, *args, **kwargs):
         if not self.model:
             logger.info("loading model....")
-            module_import = importlib.import_module(self.path[0])
-            model_obj = getattr(module_import, self.path[1])
-            self.model = model_obj(model_name=self.name)
+
+            self.model = self.model_obj(model_name=self.name)
             logger.info("Model loaded")
 
         return self.run(*args, **kwargs)
 
 
 @app.task(
+    ignore_result=False,
     bind=True,
     base=DiffusionTask,
     name=f"{__name__}.task_custom_generate_image_with_text2img",
-    path=("app.operators.stable_diffusion", "StableDiffusionText2Image"),
-    name_model=settings.default_model,
+    path=("app.operators.stable_diffusion", "StableDiffusionText2Image")
 )
-def task_custom_generate_image_with_text2img(*, request: GenRequest) -> str:
+def task_custom_generate_image_with_text2img(self, request: GenRequest) -> str:
     # Check model and scheduler from request
     model_selected = request.modelid
     scheduler_selected = request.scheduler

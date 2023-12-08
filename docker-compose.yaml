@@ -36,7 +36,8 @@ services:
     build:
       context: server
       dockerfile: ./Dockerfile
-    command: celery -A app.celery.celery_app worker --max-tasks-per-child=1 --loglevel=info -Q stable_diffusion
+    command: celery -A app.celery.celery_app worker --max-tasks-per-child=1 --pool=solo --loglevel=info -Q
+    stable_diffusion
     volumes:
       - ./server:/opt/api
     stdin_open: true

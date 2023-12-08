@@ -1,8 +1,12 @@
 from pydantic import BaseModel
 
-DISTRIBUTED_TASKS = True
+TASK_TYPE = "CELERY_CUSTOM"
 
-api_url = "http://server:8000/generate_async" if DISTRIBUTED_TASKS else "http://server:8000/generate"
+url_map = {
+    "CELERY": "http://server:8000/generate_async",
+    "ASYNC": "http://server:8000/generate",
+}
+api_url = url_map.get(TASK_TYPE, "http://server:8000/generate")
 result_url = "http://server:8000/results"
 
 model_map = {

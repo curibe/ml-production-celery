@@ -3,7 +3,7 @@ import asyncio
 import numpy as np
 import streamlit as st
 
-from config import DISTRIBUTED_TASKS, GenRequest, api_url, default_values, model_map, pipeline_map, result_url, \
+from config import TASK_TYPE, GenRequest, api_url, default_values, model_map, pipeline_map, result_url, \
     scheduler_map
 from utils import generate_images, get_dimensions, long_poll_task_result
 
@@ -151,7 +151,7 @@ if generation_button:
 
             if response.status_code == 200:
 
-                if DISTRIBUTED_TASKS:
+                if TASK_TYPE in ["CELERY"]:
                     # get the task id
                     task_id = response.json()["taskid"]
 

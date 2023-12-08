@@ -27,8 +27,8 @@ async def long_poll_task_result(task_id, result_url, max_retries=20, delay=5):
                 print(f"Error: {response.status_code}")
                 return None
 
-        # Wait before next retry
-        await asyncio.sleep(delay)
+            # Wait before next retry
+            await asyncio.sleep(delay)
 
         # Reached maximum retries
         return None

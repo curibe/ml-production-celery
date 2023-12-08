@@ -165,30 +165,29 @@ if generation_button:
             # Call the asynchronous function and wait for it to complete
             response = asyncio.run(generate_images(api_endpoint, params.model_dump()))
 
-        if response.status_code == 200:
+            if response.status_code == 200:
 
-            # get the task id
-            task_id = response.json()["taskid"]
+                # get the task id
+                task_id = response.json()["taskid"]
 
-            # API endpoint to get the result
-            result_url = f"http://server:8000/results/{task_id}"
+                # API endpoint to get the result
+                result_url = "http://server:8000/results"
 
-            # Call the asynchronous function and wait for it to complete
-            response = asyncio.run(long_poll_task_result(task_id, result_url))
+                # Call the asynchronous function and wait for it to complete
+                image = asyncio.run(long_poll_task_result(task_id, result_url))
 
-            # Display the generated image
-            image = response.content
-            st.image(image, caption=prompt, use_column_width=True)
-            store_image(image, prompt)
-            # Reset generation in progress
-            swap_generation_button_status()
-            # Generate a new seed if random seed is enabled
-            if generate_random_seed:
-                generate_seed()
-        else:
-            st.error(f"Error: {response.status_code}. Failed to generate images.")
-            # Reset generation in progress
-            swap_generation_button_status()
+                # Display the generated image
+                st.image(image, caption=prompt, use_column_width=True)
+                store_image(image, prompt)
+                # Reset generation in progress
+                swap_generation_button_status()
+                # Generate a new seed if random seed is enabled
+                if generate_random_seed:
+                    generate_seed()
+            else:
+                st.error(f"Error: {response.status_code}. Failed to generate images.")
+                # Reset generation in progress
+                swap_generation_button_status()
 
     st.rerun()
 

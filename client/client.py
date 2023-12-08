@@ -3,7 +3,8 @@ import asyncio
 import numpy as np
 import streamlit as st
 
-from config import GenRequest, default_values, model_map, pipeline_map, scheduler_map
+from config import DISTRIBUTED_TASKS, GenRequest, api_url, default_values, model_map, pipeline_map, result_url, \
+    scheduler_map
 from utils import generate_images, get_dimensions, long_poll_task_result
 
 # Check if the session state object exists
@@ -19,10 +20,7 @@ if "seed_value" not in st.session_state:
 
 # Function to store image in the session state
 def store_image(image, prompt):
-    st.session_state.generated_images.append({
-        "bytes": image,
-        "prompt": prompt
-    })
+    st.session_state.generated_images.append({"bytes": image, "prompt": prompt})
     st.session_state.generated_images = st.session_state.generated_images[-5:]
 
 
@@ -47,15 +45,13 @@ st.sidebar.header("Model")
 
 # Model
 model_list = list(model_map.keys())
-model_selected = st.sidebar.selectbox("Model", model_list,
-                                      index=model_list.index("Stable Diffusion XL"))
+model_selected = st.sidebar.selectbox("Model", model_list, index=model_list.index("Stable Diffusion XL"))
 model = model_map[model_selected]
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
 
 # Scheduler
 schedulers_list = list(scheduler_map.keys())
-scheduler_option = st.sidebar.selectbox("Scheduler", schedulers_list,
-                                        index=schedulers_list.index("PNDM"))
+scheduler_option = st.sidebar.selectbox("Scheduler", schedulers_list, index=schedulers_list.index("PNDM"))
 scheduler = scheduler_map[scheduler_option]
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
 
@@ -115,8 +111,7 @@ else:
 st.sidebar.markdown("<br><br>", unsafe_allow_html=True)
 
 # Button to trigger image generation
-generation_button = st.sidebar.button("Generate Images", type="primary",
-                                      on_click=swap_generation_button_status,
+generation_button = st.sidebar.button("Generate Images", type="primary", on_click=swap_generation_button_status,
                                       disabled=st.session_state.generation_in_progress)
 
 # -------------------------------------------------------------------------------------------------------
@@ -139,23 +134,12 @@ if generation_button:
     # Set generation in progress to True
     st.session_state.generation_in_progress = True
 
-    # API endpoint to generate images
-    api_endpoint = "http://server:8000/generate_async"
-
     # Parameters to be sent to the API
-    params = GenRequest(
-        prompt=prompt,
-        negative_prompt=negative_prompt,
-        width=witdh,
-        height=height,
-        num_inference_steps=num_inference_steps,
-        guidance_scale=guidance_scale,
-        num_images_per_prompt=num_images_per_prompt,
-        generator=seed_value,
-        pipeline=pipeline,
-        scheduler=scheduler,
-        modelid=model
-    )
+    params = GenRequest(prompt=prompt, negative_prompt=negative_prompt, width=witdh, height=height,
+                        num_inference_steps=num_inference_steps, guidance_scale=guidance_scale,
+                        num_images_per_prompt=num_images_per_prompt, generator=seed_value, pipeline=pipeline,
+                        scheduler=scheduler,
+                        modelid=model)
 
     # Clear placeholder
     placeholder.empty()
@@ -163,18 +147,18 @@ if generation_button:
     with st.container():
         with st.spinner("Generating image..."):
             # Call the asynchronous function and wait for it to complete
-            response = asyncio.run(generate_images(api_endpoint, params.model_dump()))
+            response = asyncio.run(generate_images(api_url, params.model_dump()))
 
             if response.status_code == 200:
 
-                # get the task id
-                task_id = response.json()["taskid"]
+                if DISTRIBUTED_TASKS:
+                    # get the task id
+                    task_id = response.json()["taskid"]
 
-                # API endpoint to get the result
-                result_url = "http://server:8000/results"
-
-                # Call the asynchronous function and wait for it to complete
-                image = asyncio.run(long_poll_task_result(task_id, result_url))
+                    # Call the asynchronous function and wait for it to complete
+                    image = asyncio.run(long_poll_task_result(task_id, result_url))
+                else:
+                    image = response.content
 
                 # Display the generated image
                 st.image(image, caption=prompt, use_column_width=True)

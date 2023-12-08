@@ -1,5 +1,10 @@
 from pydantic import BaseModel
 
+DISTRIBUTED_TASKS = True
+
+api_url = "http://server:8000/generate_async" if DISTRIBUTED_TASKS else "http://server:8000/generate"
+result_url = "http://server:8000/results"
+
 model_map = {
     "Stable Diffusion XL": "stabilityai/stable-diffusion-xl-base-1.0",
     "Stable Diffusion 2": "stabilityai/stable-diffusion-2"

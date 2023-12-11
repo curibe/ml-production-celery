@@ -20,6 +20,7 @@ transformers = "^4.35.2"
 accelerate = "^0.24.1"
 redis = "^5.0.1"
 flower = "^2.0.1"
+gevent = "^23.9.1"
 
 
 [tool.poetry.group.dev.dependencies]

@@ -26,14 +26,13 @@ class DiffusionTask(Task):
         if not self.model:
             logger.info("loading model....")
 
-            self.model = self.model_obj(model_name=self.name)
+            self.model = self.model_obj(model_name=self.model_name)
             logger.info("Model loaded")
 
         return self.run(*args, **kwargs)
 
 
 @app.task(
-    ignore_result=False,
     bind=True,
     base=DiffusionTask,
     name=f"{__name__}.task_custom_generate_image_with_text2img",

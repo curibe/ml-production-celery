@@ -47,7 +47,7 @@ def task_custom_generate_image_with_text2img(self, request: GenRequest) -> str:
     logger.info(f"Current scheduler: {self.model.scheduler} - Sampler selected: {scheduler_selected}")
 
     # If model or scheduler are different, we need to reinitialize the model
-    if self.model.model_name != model_selected and self.model.scheduler != scheduler_selected:
+    if self.model.model_name != model_selected or self.model.scheduler != scheduler_selected:
         self.model.__init__(
             model_name=model_selected,
             scheduler=scheduler_selected,
